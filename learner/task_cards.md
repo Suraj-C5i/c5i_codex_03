@@ -5,9 +5,9 @@
 - Repo: `cart_service`
 - Requirements: CART-01, CART-02, CART-03
 - Scope: add coupon calculation while preserving `calculate_total(items)` and numeric output.
-- Before edit: inspect current contract; confirm approved rounding/timezone decision in design note.
-- Required evidence: valid code; case-insensitive match; activation boundary; exclusive expiry boundary; percentage bounds; cap; zero floor; regression on old API; no dependency change.
-- Stop condition: rounding policy absent, timestamps ambiguous, or implementation requires a new public contract.
+- Before edit: inspect the existing contract; use full precision without rounding and timezone-aware UTC timestamps.
+- Required evidence: valid code; case-insensitive match; activation boundary; exact-expiry and after-expiry eligibility; percentage bounds; full precision; cap; zero floor; regression on old API; no dependency change.
+- Stop condition: timestamp interpretation is ambiguous or implementation requires a new public contract.
 - Out of scope: tax, shipping, UI, database, payment provider.
 
 ## NOTIF-T1: bounded transient retry

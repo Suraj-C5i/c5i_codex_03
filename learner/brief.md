@@ -16,8 +16,8 @@ A small online shop has two separately owned services. Checkout is maintained in
 
 | ID | Requirement | Evidence expected |
 |---|---|---|
-| CART-01 | Match a coupon code without case sensitivity. Apply it only when UTC `active_from <= now < expires_at`. | Tests for matching case, different case, just before activation, exact activation, just before expiry, exact expiry. |
-| CART-02 | Accept percentages from 0 through 100 inclusive; cap the discount at 50 currency units; total must not fall below zero. | Tests for 0%, 100%, invalid below/above range, capped discount, zero floor. |
+| CART-01 | Match a coupon code without case sensitivity. Apply it when UTC `now >= active_from`; `expires_at` does not limit redemption. | Tests for matching case, different case, just before activation, exact activation, exact expiry, and after expiry. |
+| CART-02 | Accept percentages from 0 through 100 inclusive; invalid percentages return the undiscounted total; use full precision without rounding; cap the discount at 50 currency units; total must not fall below zero. | Tests for 0%, 100%, invalid below/above range, full precision, capped discount, zero floor. |
 | CART-03 | Keep `calculate_total(items)` callable with the same signature and numeric return type. Add no third-party package. | Existing caller remains valid; regression test; dependency file unchanged. |
 | NOTIF-01 | Retry a temporary failure for at most three total send attempts. Wait 1 second before attempt 2 and 2 seconds before attempt 3. | Deterministic tests using an injected sleeper and fake sender. |
 | NOTIF-02 | Do not retry permanent 4xx client errors. | A 4xx fake failure produces exactly one attempt and no wait. |
@@ -28,10 +28,10 @@ A small online shop has two separately owned services. Checkout is maintained in
 ## Explicit assumptions to challenge
 
 - All timestamps are timezone-aware UTC datetimes. What should happen if they are naive or use another timezone?
-- Expiry is exclusive. At exactly `expires_at`, the coupon is no longer valid.
+- Coupons remain usable after `active_from`, including at and after `expires_at`; `expires_at` is retained as informational coupon data.
 - “Three attempts” counts the first send plus two retries, not three retries after the first.
 - Waits happen only between retryable attempts: 1 second, then 2 seconds. There is no wait after the final failure.
-- Percentage math/rounding has not been defined by product. Stop before implementation and ask a human to choose. For this lab, the instructor will select a policy and record it in the design note.
+- Percentage calculations retain full numeric precision without rounding for this lab.
 - “Temporary failure” must have an explicit type or status classification. Do not retry every exception indiscriminately.
 
 ## Out of scope
